@@ -21,7 +21,12 @@ import com.microsoft.jenkins.appservice.util.Constants;
 import com.microsoft.jenkins.appservice.util.TokenCache;
 import com.microsoft.jenkins.exceptions.AzureCloudException;
 import com.microsoft.jenkins.services.CommandService;
-import hudson.*;
+import hudson.AbortException;
+import hudson.EnvVars;
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.Util;
 import hudson.model.Item;
 import hudson.model.Result;
 import hudson.model.Run;
@@ -127,7 +132,7 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
     }
 
     @DataBoundSetter
-    public void setSourceDirectory(@CheckForNull String sourceDirectory) {
+    public void setSourceDirectory(@CheckForNull final String sourceDirectory) {
         this.sourceDirectory = Util.fixNull(sourceDirectory);
     }
 
@@ -137,7 +142,7 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
     }
 
     @DataBoundSetter
-    public void setTargetDirectory(@CheckForNull String targetDirectory) {
+    public void setTargetDirectory(@CheckForNull final String targetDirectory) {
         this.targetDirectory = Util.fixNull(targetDirectory);
     }
 
@@ -147,7 +152,7 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
     }
 
     @DataBoundSetter
-    public void setSlotName(@CheckForNull String slotName) {
+    public void setSlotName(@CheckForNull final String slotName) {
         this.slotName = Util.fixNull(slotName);
     }
 
@@ -331,7 +336,7 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
             }
         }
 
-        public ListBoxModel doFillAzureCredentialsIdItems(@AncestorInPath Item owner) {
+        public ListBoxModel doFillAzureCredentialsIdItems(@AncestorInPath final Item owner) {
             return new StandardListBoxModel()
                     .withEmptySelection()
                     .withAll(CredentialsProvider.lookupCredentials(
@@ -344,7 +349,8 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
             model.add(Constants.EMPTY_SELECTION, "");
             // list all app service
             if (StringUtils.isNotBlank(azureCredentialsId)) {
-                final Azure azureClient = TokenCache.getInstance(AzureCredentials.getServicePrincipal(azureCredentialsId)).getAzureClient();
+                final Azure azureClient = TokenCache.getInstance(
+                        AzureCredentials.getServicePrincipal(azureCredentialsId)).getAzureClient();
                 for (final ResourceGroup rg : azureClient.resourceGroups().list()) {
                     model.add(rg.name());
                 }
