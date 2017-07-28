@@ -9,6 +9,7 @@ import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.credentials.ApplicationTokenCredentials;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.util.AzureCredentials;
+import com.microsoft.jenkins.appservice.AzureAppServicePlugin;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 
@@ -96,6 +97,7 @@ public class TokenCache {
     public Azure getAzureClient() {
         return Azure
                 .configure()
+                .withInterceptor(new AzureAppServicePlugin.AzureTelemetryInterceptor())
                 .withLogLevel(Constants.DEFAULT_AZURE_SDK_LOGGING_LEVEL)
                 .withUserAgent(getUserAgent())
                 .authenticate(get(credentials))
