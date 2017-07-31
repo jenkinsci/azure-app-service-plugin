@@ -7,13 +7,11 @@ package com.microsoft.jenkins.appservice;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.IdCredentials;
-import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.github.dockerjava.api.model.AuthConfig;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.appservice.WebApp;
 import com.microsoft.azure.management.appservice.implementation.SiteConfigResourceInner;
-import com.microsoft.azure.management.resources.ResourceGroup;
 import com.microsoft.azure.util.AzureCredentials;
 import com.microsoft.jenkins.appservice.commands.DockerBuildInfo;
 import com.microsoft.jenkins.appservice.commands.DockerPingCommand;
@@ -129,26 +127,6 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
 
     public boolean isDeleteTempImage() {
         return deleteTempImage;
-    }
-
-    @DataBoundSetter
-    public void setSourceDirectory(@CheckForNull final String sourceDirectory) {
-        this.sourceDirectory = Util.fixNull(sourceDirectory);
-    }
-
-    @CheckForNull
-    public String getSourceDirectory() {
-        return sourceDirectory;
-    }
-
-    @DataBoundSetter
-    public void setTargetDirectory(@CheckForNull final String targetDirectory) {
-        this.targetDirectory = Util.fixNull(targetDirectory);
-    }
-
-    @CheckForNull
-    public String getTargetDirectory() {
-        return targetDirectory;
     }
 
     @DataBoundSetter
@@ -337,25 +315,11 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
         }
 
         public ListBoxModel doFillAzureCredentialsIdItems(@AncestorInPath final Item owner) {
-            return new StandardListBoxModel()
-                    .withEmptySelection()
-                    .withAll(CredentialsProvider.lookupCredentials(
-                            AzureCredentials.class, owner, ACL.SYSTEM, Collections.<DomainRequirement>emptyList()
-                    ));
+            return listAzureCredentialsIdItems(owner);
         }
 
         public ListBoxModel doFillResourceGroupItems(@QueryParameter final String azureCredentialsId) {
-            final ListBoxModel model = new ListBoxModel();
-            model.add(Constants.EMPTY_SELECTION, "");
-            // list all app service
-            if (StringUtils.isNotBlank(azureCredentialsId)) {
-                final Azure azureClient = TokenCache.getInstance(
-                        AzureCredentials.getServicePrincipal(azureCredentialsId)).getAzureClient();
-                for (final ResourceGroup rg : azureClient.resourceGroups().list()) {
-                    model.add(rg.name());
-                }
-            }
-            return model;
+            return listResourceGroupItems(azureCredentialsId);
         }
 
         public ListBoxModel doFillAppNameItems(@QueryParameter final String azureCredentialsId,

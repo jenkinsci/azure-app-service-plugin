@@ -128,7 +128,7 @@ public abstract class BaseDeploymentRecorder extends Recorder implements SimpleB
 
         protected ListBoxModel listAzureCredentialsIdItems(final Item owner) {
             return new StandardListBoxModel()
-                    .withEmptySelection()
+                    .includeEmptyValue()
                     .withAll(CredentialsProvider.lookupCredentials(
                             AzureCredentials.class, owner, ACL.SYSTEM, Collections.<DomainRequirement>emptyList()
                     ));
