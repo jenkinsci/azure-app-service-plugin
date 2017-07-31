@@ -6,7 +6,10 @@
 package com.microsoft.jenkins.appservice.commands;
 
 import com.microsoft.azure.management.appservice.PublishingProfile;
+import com.microsoft.jenkins.appservice.AzureAppServicePlugin;
+import com.microsoft.jenkins.appservice.util.Constants;
 import com.microsoft.jenkins.appservice.util.FilePathUtils;
+import com.microsoft.jenkins.azurecommons.telemetry.AppInsightsUtils;
 import hudson.FilePath;
 import hudson.Util;
 import hudson.model.TaskListener;
@@ -61,17 +64,25 @@ public class FTPDeployCommand implements ICommand<FTPDeployCommand.IFTPDeployCom
 
         try {
             workspace.act(new FTPDeployCommandOnSlave(
-                context.getListener(),
-                ftpUrl,
-                pubProfile.ftpUsername(),
-                pubProfile.ftpPassword(),
-                workspace,
-                context.getSourceDirectory(),
-                context.getTargetDirectory(),
-                context.getFilePath()
+                    context.getListener(),
+                    ftpUrl,
+                    pubProfile.ftpUsername(),
+                    pubProfile.ftpPassword(),
+                    workspace,
+                    context.getSourceDirectory(),
+                    context.getTargetDirectory(),
+                    context.getFilePath()
             ));
+
+            AzureAppServicePlugin.sendEvent(Constants.AI_WEB_APP, Constants.AI_FTP_DEPLOY,
+                    "WebApp", AppInsightsUtils.hash(context.getWebApp().name()),
+                    "Slot", context.getSlotName());
         } catch (IOException | FTPException e) {
             context.logError("Fail to deploy to FTP: " + e.getMessage());
+            AzureAppServicePlugin.sendEvent(Constants.AI_WEB_APP, Constants.AI_FTP_DEPLOY_FAILED,
+                    "WebApp", AppInsightsUtils.hash(context.getWebApp().name()),
+                    "Slot", context.getSlotName(),
+                    "Message", e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -165,8 +176,9 @@ public class FTPDeployCommand implements ICommand<FTPDeployCommand.IFTPDeployCom
 
         /**
          * Remove FTP directory recursively.
+         *
          * @param ftpClient FTP client
-         * @param dir Directory to remove
+         * @param dir       Directory to remove
          * @throws IOException
          */
         private void removeFtpDirectory(final FTPClient ftpClient, final String dir)
@@ -241,7 +253,7 @@ public class FTPDeployCommand implements ICommand<FTPDeployCommand.IFTPDeployCom
         }
     }
 
-    public interface IFTPDeployCommandData extends IBaseCommandData {
+    public interface IFTPDeployCommandData extends IDeployCommandData {
 
         PublishingProfile getPublishingProfile();
 

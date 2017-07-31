@@ -8,7 +8,10 @@ package com.microsoft.jenkins.appservice.commands;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import com.microsoft.azure.management.appservice.PublishingProfile;
+import com.microsoft.jenkins.appservice.AzureAppServicePlugin;
+import com.microsoft.jenkins.appservice.util.Constants;
 import com.microsoft.jenkins.appservice.util.FilePathUtils;
+import com.microsoft.jenkins.azurecommons.telemetry.AppInsightsUtils;
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Util;
@@ -23,7 +26,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheBuildIterator;
 import org.eclipse.jgit.dircache.DirCacheBuilder;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.IndexDiff;
 import org.eclipse.jgit.lib.Repository;
@@ -64,9 +66,9 @@ public class GitDeployCommand implements ICommand<GitDeployCommand.IGitDeployCom
             final String gitExe = getGitExe(run, listener);
 
             GitClient git = Git.with(listener, env)
-                .in(repo)
-                .using(gitExe)
-                .getClient();
+                    .in(repo)
+                    .using(gitExe)
+                    .getClient();
 
             git.addCredentials(pubProfile.gitUrl(), new UsernamePasswordCredentialsImpl(
                     CredentialsScope.SYSTEM, "", "", pubProfile.gitUsername(), pubProfile.gitPassword()));
@@ -99,11 +101,20 @@ public class GitDeployCommand implements ICommand<GitDeployCommand.IGitDeployCom
             git.push().to(new URIish(pubProfile.gitUrl())).execute();
 
             context.setDeploymentState(DeploymentState.Success);
-
+            AzureAppServicePlugin.sendEvent(Constants.AI_WEB_APP, Constants.AI_GIT_DEPLOY,
+                    "Branch", DEPLOY_BRANCH,
+                    "WebApp", AppInsightsUtils.hash(context.getWebApp().name()),
+                    "Slot", context.getSlotName());
         } catch (IOException | InterruptedException | URISyntaxException e) {
             e.printStackTrace();
             context.logError("Fail to deploy using Git: " + e.getMessage());
             context.setDeploymentState(DeploymentState.HasError);
+
+            AzureAppServicePlugin.sendEvent(Constants.AI_WEB_APP, Constants.AI_GIT_DEPLOY_FAILED,
+                    "Branch", DEPLOY_BRANCH,
+                    "WebApp", AppInsightsUtils.hash(context.getWebApp().name()),
+                    "Slot", context.getSlotName(),
+                    "Message", e.getMessage());
         }
     }
 
@@ -128,7 +139,7 @@ public class GitDeployCommand implements ICommand<GitDeployCommand.IGitDeployCom
 
     /**
      * Remove all existing files in the working directory, from both git and disk
-     *
+     * <p>
      * This method is modified from RmCommand in JGit.
      *
      * @param git Git client
@@ -155,7 +166,7 @@ public class GitDeployCommand implements ICommand<GitDeployCommand.IGitDeployCom
 
                 while (tw.next()) {
                     final FileMode mode = tw.getFileMode(0);
-                    if (mode.getObjectType() == Constants.OBJ_BLOB) {
+                    if (mode.getObjectType() == org.eclipse.jgit.lib.Constants.OBJ_BLOB) {
                         final File path = new File(repo.getWorkTree(),
                                 tw.getPathString());
                         // Deleting a blob is simply a matter of removing
@@ -184,10 +195,10 @@ public class GitDeployCommand implements ICommand<GitDeployCommand.IGitDeployCom
     /**
      * Copy selected files to git working directory and stage them.
      *
-     * @param git Git client
-     * @param repo Path to git repo
-     * @param sourceDir Source directory
-     * @param targetDir Target directory
+     * @param git          Git client
+     * @param repo         Path to git repo
+     * @param sourceDir    Source directory
+     * @param targetDir    Target directory
      * @param filesPattern Files name pattern
      * @throws IOException
      * @throws InterruptedException
@@ -199,7 +210,7 @@ public class GitDeployCommand implements ICommand<GitDeployCommand.IGitDeployCom
             final String targetDir,
             final String filesPattern) throws IOException, InterruptedException {
         final FilePath[] files = sourceDir.list(filesPattern);
-        for (final FilePath file: files) {
+        for (final FilePath file : files) {
             final String fileName = FilePathUtils.trimDirectoryPrefix(sourceDir, file);
             FilePath repoPath = new FilePath(repo.child(targetDir), fileName);
             file.copyTo(repoPath);
@@ -227,12 +238,12 @@ public class GitDeployCommand implements ICommand<GitDeployCommand.IGitDeployCom
         public Boolean invoke(final Repository repo, final VirtualChannel channel)
                 throws IOException, InterruptedException {
             FileTreeIterator workingTreeIt = new FileTreeIterator(repo);
-            IndexDiff diff = new IndexDiff(repo, Constants.HEAD, workingTreeIt);
+            IndexDiff diff = new IndexDiff(repo, org.eclipse.jgit.lib.Constants.HEAD, workingTreeIt);
             return diff.diff();
         }
     }
 
-    public interface IGitDeployCommandData extends IBaseCommandData {
+    public interface IGitDeployCommandData extends IDeployCommandData {
 
         PublishingProfile getPublishingProfile();
 

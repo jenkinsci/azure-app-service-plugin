@@ -9,6 +9,9 @@ package com.microsoft.jenkins.appservice.commands;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.PushResponseItem;
 import com.github.dockerjava.core.command.PushImageResultCallback;
+import com.microsoft.jenkins.appservice.AzureAppServicePlugin;
+import com.microsoft.jenkins.appservice.util.Constants;
+import com.microsoft.jenkins.azurecommons.telemetry.AppInsightsConstants;
 import com.microsoft.jenkins.exceptions.AzureCloudException;
 import hudson.FilePath;
 import hudson.model.TaskListener;
@@ -35,9 +38,14 @@ public class DockerPushCommand extends DockerCommand implements ICommand<DockerP
 
             context.logStatus("Push completed");
             context.setDeploymentState(state);
+
+            AzureAppServicePlugin.sendEvent(AppInsightsConstants.DOCKER, Constants.AI_DOCKER_PUSH,
+                    "Registry", dockerBuildInfo.getAuthConfig().getRegistryAddress());
         } catch (AzureCloudException | InterruptedException | IOException e) {
             context.getListener().getLogger().println("Build failed for " + e.getMessage());
             context.setDeploymentState(DeploymentState.HasError);
+            AzureAppServicePlugin.sendEvent(AppInsightsConstants.DOCKER, Constants.AI_DOCKER_PUSH_FAILED,
+                    "Message", e.getMessage());
         }
     }
 
@@ -104,6 +112,7 @@ public class DockerPushCommand extends DockerCommand implements ICommand<DockerP
 
     public interface IDockerPushCommandData extends IBaseCommandData {
         DockerClientBuilder getDockerClientBuilder();
+
         DockerBuildInfo getDockerBuildInfo();
     }
 }

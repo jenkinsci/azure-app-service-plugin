@@ -7,6 +7,7 @@ package com.microsoft.jenkins.appservice;
 
 import com.microsoft.azure.management.appservice.FunctionApp;
 import com.microsoft.azure.management.appservice.PublishingProfile;
+import com.microsoft.azure.management.appservice.WebAppBase;
 import com.microsoft.jenkins.appservice.commands.AbstractCommandContext;
 import com.microsoft.jenkins.appservice.commands.DeploymentState;
 import com.microsoft.jenkins.appservice.commands.GitDeployCommand;
@@ -28,6 +29,7 @@ public class FunctionAppDeploymentCommandContext extends AbstractCommandContext
     private String sourceDirectory;
     private String targetDirectory;
     private PublishingProfile pubProfile;
+    private FunctionApp functionApp;
 
     public FunctionAppDeploymentCommandContext(final String filePath) {
         this.filePath = filePath;
@@ -48,8 +50,8 @@ public class FunctionAppDeploymentCommandContext extends AbstractCommandContext
             final FilePath workspace,
             final TaskListener listener,
             final FunctionApp app) throws AzureCloudException {
+        this.functionApp = app;
         pubProfile = app.getPublishingProfile();
-
         HashMap<Class, TransitionInfo> commands = new HashMap<>();
 
         Class startCommandClass = GitDeployCommand.class;
@@ -84,4 +86,13 @@ public class FunctionAppDeploymentCommandContext extends AbstractCommandContext
         return pubProfile;
     }
 
+    @Override
+    public WebAppBase getWebApp() {
+        return functionApp;
+    }
+
+    @Override
+    public String getSlotName() {
+        return null;
+    }
 }
