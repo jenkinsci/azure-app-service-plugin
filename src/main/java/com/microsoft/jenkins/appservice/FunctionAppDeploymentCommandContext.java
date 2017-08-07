@@ -7,21 +7,24 @@ package com.microsoft.jenkins.appservice;
 
 import com.microsoft.azure.management.appservice.FunctionApp;
 import com.microsoft.azure.management.appservice.PublishingProfile;
-import com.microsoft.jenkins.appservice.commands.AbstractCommandContext;
-import com.microsoft.jenkins.appservice.commands.DeploymentState;
 import com.microsoft.jenkins.appservice.commands.GitDeployCommand;
-import com.microsoft.jenkins.appservice.commands.IBaseCommandData;
-import com.microsoft.jenkins.appservice.commands.ICommand;
-import com.microsoft.jenkins.appservice.commands.TransitionInfo;
+import com.microsoft.jenkins.azurecommons.command.BaseCommandContext;
+import com.microsoft.jenkins.azurecommons.command.CommandState;
+import com.microsoft.jenkins.azurecommons.command.IBaseCommandData;
+import com.microsoft.jenkins.azurecommons.command.ICommand;
+import com.microsoft.jenkins.azurecommons.command.TransitionInfo;
 import com.microsoft.jenkins.exceptions.AzureCloudException;
 import hudson.FilePath;
+import hudson.Launcher;
 import hudson.Util;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import org.jenkinsci.plugins.workflow.steps.StepContext;
+import org.jenkinsci.plugins.workflow.steps.StepExecution;
 
 import java.util.HashMap;
 
-public class FunctionAppDeploymentCommandContext extends AbstractCommandContext
+public class FunctionAppDeploymentCommandContext extends BaseCommandContext
         implements GitDeployCommand.IGitDeployCommandData {
 
     private final String filePath;
@@ -43,9 +46,15 @@ public class FunctionAppDeploymentCommandContext extends AbstractCommandContext
         this.targetDirectory = Util.fixNull(targetDirectory);
     }
 
+    @Override
+    public StepExecution start(StepContext context) throws Exception {
+        return null;
+    }
+
     public void configure(
             final Run<?, ?> run,
             final FilePath workspace,
+            final Launcher launcher,
             final TaskListener listener,
             final FunctionApp app) throws AzureCloudException {
         pubProfile = app.getPublishingProfile();
@@ -55,8 +64,8 @@ public class FunctionAppDeploymentCommandContext extends AbstractCommandContext
         Class startCommandClass = GitDeployCommand.class;
         commands.put(GitDeployCommand.class, new TransitionInfo(new GitDeployCommand(), null, null));
 
-        super.configure(run, workspace, listener, commands, startCommandClass);
-        this.setDeploymentState(DeploymentState.Running);
+        super.configure(run, workspace, launcher, listener, commands, startCommandClass);
+        this.setCommandState(CommandState.Running);
     }
 
     @Override

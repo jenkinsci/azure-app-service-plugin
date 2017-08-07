@@ -9,9 +9,7 @@ import com.microsoft.azure.management.appservice.DeploymentSlot;
 import com.microsoft.azure.management.appservice.JavaVersion;
 import com.microsoft.azure.management.appservice.PublishingProfile;
 import com.microsoft.azure.management.appservice.WebApp;
-import com.microsoft.jenkins.appservice.commands.AbstractCommandContext;
 import com.microsoft.jenkins.appservice.commands.DefaultDockerClientBuilder;
-import com.microsoft.jenkins.appservice.commands.DeploymentState;
 import com.microsoft.jenkins.appservice.commands.DockerBuildCommand;
 import com.microsoft.jenkins.appservice.commands.DockerBuildInfo;
 import com.microsoft.jenkins.appservice.commands.DockerClientBuilder;
@@ -20,19 +18,24 @@ import com.microsoft.jenkins.appservice.commands.DockerPushCommand;
 import com.microsoft.jenkins.appservice.commands.DockerRemoveImageCommand;
 import com.microsoft.jenkins.appservice.commands.FTPDeployCommand;
 import com.microsoft.jenkins.appservice.commands.GitDeployCommand;
-import com.microsoft.jenkins.appservice.commands.IBaseCommandData;
-import com.microsoft.jenkins.appservice.commands.ICommand;
-import com.microsoft.jenkins.appservice.commands.TransitionInfo;
+import com.microsoft.jenkins.azurecommons.command.BaseCommandContext;
+import com.microsoft.jenkins.azurecommons.command.CommandState;
+import com.microsoft.jenkins.azurecommons.command.IBaseCommandData;
+import com.microsoft.jenkins.azurecommons.command.ICommand;
+import com.microsoft.jenkins.azurecommons.command.TransitionInfo;
 import com.microsoft.jenkins.exceptions.AzureCloudException;
 import hudson.FilePath;
+import hudson.Launcher;
 import hudson.Util;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.workflow.steps.StepContext;
+import org.jenkinsci.plugins.workflow.steps.StepExecution;
 
 import java.util.HashMap;
 
-public class WebAppDeploymentCommandContext extends AbstractCommandContext
+public class WebAppDeploymentCommandContext extends BaseCommandContext
         implements FTPDeployCommand.IFTPDeployCommandData,
         GitDeployCommand.IGitDeployCommandData,
         DockerBuildCommand.IDockerBuildCommandData,
@@ -91,6 +94,7 @@ public class WebAppDeploymentCommandContext extends AbstractCommandContext
     public void configure(
             final Run<?, ?> run,
             final FilePath workspace,
+            final Launcher launcher,
             final TaskListener listener,
             final WebApp app) throws AzureCloudException {
         if (StringUtils.isBlank(slotName)) {
@@ -137,8 +141,13 @@ public class WebAppDeploymentCommandContext extends AbstractCommandContext
                     new GitDeployCommand(), null, null));
         }
 
-        super.configure(run, workspace, listener, commands, startCommandClass);
-        this.setDeploymentState(DeploymentState.Running);
+        super.configure(run, workspace, launcher, listener, commands, startCommandClass);
+        this.setCommandState(CommandState.Running);
+    }
+
+    @Override
+    public StepExecution start(StepContext context) throws Exception {
+        return null;
     }
 
     @Override
