@@ -17,8 +17,8 @@ import com.microsoft.jenkins.appservice.commands.DockerBuildInfo;
 import com.microsoft.jenkins.appservice.commands.DockerPingCommand;
 import com.microsoft.jenkins.appservice.util.Constants;
 import com.microsoft.jenkins.appservice.util.TokenCache;
+import com.microsoft.jenkins.azurecommons.command.CommandService;
 import com.microsoft.jenkins.exceptions.AzureCloudException;
-import com.microsoft.jenkins.services.CommandService;
 import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -74,6 +74,7 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
         this.dockerFilePath = "**/Dockerfile";
         this.deleteTempImage = true;
     }
+
     @DataBoundSetter
     public void setPublishType(final String publishType) {
         this.publishType = publishType;
@@ -185,14 +186,14 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
         commandContext.setAzureCredentialsId(azureCredentialsId);
 
         try {
-            commandContext.configure(run, workspace, listener, app);
+            commandContext.configure(run, workspace, launcher, listener, app);
         } catch (AzureCloudException e) {
             throw new AbortException(e.getMessage());
         }
 
         CommandService.executeCommands(commandContext);
 
-        if (!commandContext.getHasError()) {
+        if (!commandContext.hasError()) {
             listener.getLogger().println("Done Azure Web App deployment.");
         } else {
             throw new AbortException("Azure Web App deployment failed.");
