@@ -93,6 +93,8 @@ public class WebAppDeploymentCommandContext extends AbstractCommandContext
             final FilePath workspace,
             final TaskListener listener,
             final WebApp app) throws AzureCloudException {
+        this.webApp = app;
+
         if (StringUtils.isBlank(slotName)) {
             // Deploy to default
             pubProfile = app.getPublishingProfile();
@@ -111,7 +113,6 @@ public class WebAppDeploymentCommandContext extends AbstractCommandContext
         Class startCommandClass;
         if (StringUtils.isNotBlank(publishType) && publishType.equalsIgnoreCase(PUBLISH_TYPE_DOCKER)) {
             startCommandClass = DockerBuildCommand.class;
-            this.webApp = app;
             commands.put(DockerBuildCommand.class, new TransitionInfo(
                     new DockerBuildCommand(), DockerPushCommand.class, null));
             commands.put(DockerPushCommand.class, new TransitionInfo(

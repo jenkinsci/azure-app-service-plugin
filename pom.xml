@@ -27,6 +27,7 @@
         <powermock.version>1.7.0RC2</powermock.version>
         <azuresdk.version>1.1.0</azuresdk.version>
         <azure-credentials.version>1.2</azure-credentials.version>
+        <azure-commons.version>1.0-SNAPSHOT</azure-commons.version>
         <version.docker-java>3.0.10</version.docker-java>
         <version.jenkins.docker-commons>1.4.0</version.jenkins.docker-commons>
     </properties>
@@ -95,6 +96,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>azure-commons</artifactId>
+            <version>${azure-commons.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java</artifactId>
             <!-- use latest version https://github.com/docker-java/docker-java/releases -->
@@ -158,6 +165,16 @@
             <groupId>org.jenkins-ci.main</groupId>
             <artifactId>jenkins-test-harness</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>credentials</artifactId>
+            <version>2.1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>plain-credentials</artifactId>
+            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>

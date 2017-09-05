@@ -13,7 +13,10 @@ import com.microsoft.azure.management.appservice.NameValuePair;
 import com.microsoft.azure.management.appservice.WebApp;
 import com.microsoft.azure.management.appservice.implementation.SiteConfigResourceInner;
 import com.microsoft.azure.util.AzureCredentials;
+import com.microsoft.jenkins.appservice.AzureAppServicePlugin;
+import com.microsoft.jenkins.appservice.util.Constants;
 import com.microsoft.jenkins.appservice.util.TokenCache;
+import com.microsoft.jenkins.azurecommons.telemetry.AppInsightsUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 
@@ -33,7 +36,7 @@ public class DockerDeployCommand extends DockerCommand
     public void execute(final IDockerDeployCommandData context) {
         final DockerBuildInfo dockerBuildInfo = context.getDockerBuildInfo();
         final AuthConfig authConfig = dockerBuildInfo.getAuthConfig();
-        final WebApp webApp = context.getWebApp();
+        final WebApp webApp = (WebApp) context.getWebApp();
         final String slotName = context.getSlotName();
 
         try {
@@ -92,18 +95,22 @@ public class DockerDeployCommand extends DockerCommand
             }
             context.setDeploymentState(DeploymentState.Success);
             context.logStatus("Azure app service updated successfully.");
+            AzureAppServicePlugin.sendEvent(Constants.AI_WEB_APP, Constants.AI_DOCKER_DEPLOY,
+                    "WebApp", AppInsightsUtils.hash(context.getWebApp().name()),
+                    "Slot", context.getSlotName(),
+                    "Image", image);
         } catch (Exception e) {
             context.logError("Fails in updating Azure app service", e);
             context.setDeploymentState(DeploymentState.HasError);
+            AzureAppServicePlugin.sendEvent(Constants.AI_WEB_APP, Constants.AI_DOCKER_DEPLOY_FAILED,
+                    "Message", e.getMessage(),
+                    "WebApp", AppInsightsUtils.hash(context.getWebApp().name()),
+                    "Slot", context.getSlotName());
         }
     }
 
-    public interface IDockerDeployCommandData extends IBaseCommandData {
+    public interface IDockerDeployCommandData extends IDeployCommandData {
         DockerBuildInfo getDockerBuildInfo();
-
-        WebApp getWebApp();
-
-        String getSlotName();
 
         String getAzureCredentialsId();
     }

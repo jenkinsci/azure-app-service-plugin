@@ -74,6 +74,7 @@ public class WebAppDeploymentRecorder extends BaseDeploymentRecorder {
         this.dockerFilePath = "**/Dockerfile";
         this.deleteTempImage = true;
     }
+
     @DataBoundSetter
     public void setPublishType(final String publishType) {
         this.publishType = publishType;

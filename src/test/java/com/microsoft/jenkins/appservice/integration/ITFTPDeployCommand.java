@@ -66,6 +66,7 @@ public class ITFTPDeployCommand extends IntegrationTest {
                 .withWebContainer(WebContainer.TOMCAT_8_0_NEWEST)
                 .create();
         Assert.assertNotNull(webApp);
+        when(commandDataMock.getWebApp()).thenReturn(webApp);
 
         final PublishingProfile pubProfile = webApp.getPublishingProfile();
         when(commandDataMock.getPublishingProfile()).thenReturn(pubProfile);
