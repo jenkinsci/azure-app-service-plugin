@@ -11,7 +11,17 @@ import com.microsoft.azure.util.AzureCredentialUtil;
 import com.microsoft.jenkins.appservice.AzureAppServicePlugin;
 import com.microsoft.jenkins.azurecommons.core.AzureClientFactory;
 import com.microsoft.jenkins.azurecommons.core.credentials.TokenCredentialData;
+import hudson.ProxyConfiguration;
 import hudson.model.Item;
+import jenkins.model.Jenkins;
+import okhttp3.Authenticator;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
+import okhttp3.Credentials;
+
+import java.io.IOException;
+import java.net.Proxy;
 
 public final class AzureUtils {
 
@@ -29,11 +39,32 @@ public final class AzureUtils {
         return AzureClientFactory.getClient(token, new AzureClientFactory.Configurer() {
             @Override
             public Azure.Configurable configure(Azure.Configurable configurable) {
-                return configurable
-                        .withLogLevel(Constants.DEFAULT_AZURE_SDK_LOGGING_LEVEL)
-                        .withInterceptor(new AzureAppServicePlugin.AzureTelemetryInterceptor())
-                        .withUserAgent(AzureClientFactory.getUserAgent(Constants.PLUGIN_NAME,
-                                AzureUtils.class.getPackage().getImplementationVersion()));
+                Jenkins instance = Jenkins.getInstance();
+                final ProxyConfiguration proxyConfiguration = instance.proxy;
+                if (proxyConfiguration == null) {
+                    return configurable
+                            .withLogLevel(Constants.DEFAULT_AZURE_SDK_LOGGING_LEVEL)
+                            .withInterceptor(new AzureAppServicePlugin.AzureTelemetryInterceptor())
+                            .withUserAgent(AzureClientFactory.getUserAgent(Constants.PLUGIN_NAME,
+                                    AzureUtils.class.getPackage().getImplementationVersion()));
+                } else {
+                    Proxy proxy = proxyConfiguration.createProxy(null);
+                    return configurable
+                            .withProxy(proxy)
+                            .withProxyAuthenticator(new Authenticator() {
+                                @Override
+                                public Request authenticate(Route route, Response response) throws IOException {
+                                    String credential = Credentials.basic(proxyConfiguration.getUserName(),
+                                            proxyConfiguration.getPassword());
+                                    return response.request().newBuilder()
+                                            .header("Proxy-Authorization", credential)
+                                            .build();
+                                }
+                            }).withLogLevel(Constants.DEFAULT_AZURE_SDK_LOGGING_LEVEL)
+                            .withInterceptor(new AzureAppServicePlugin.AzureTelemetryInterceptor())
+                            .withUserAgent(AzureClientFactory.getUserAgent(Constants.PLUGIN_NAME,
+                                    AzureUtils.class.getPackage().getImplementationVersion()));
+                }
             }
         });
     }
