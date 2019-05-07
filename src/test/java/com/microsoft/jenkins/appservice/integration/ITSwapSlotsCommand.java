@@ -58,11 +58,15 @@ public class ITSwapSlotsCommand extends IntegrationTest {
                 .create();
         Assert.assertNotNull(resourceGroup);
 
+        SkuDescription sd = new SkuDescription();
+        sd.withTier("STANDARD");
+        sd.withSize("S1");
+        PricingTier appServicePricingTier = PricingTier.fromSkuDescription(sd);
         final AppServicePlan asp = azureClient.appServices().appServicePlans()
                 .define(testEnv.appServicePlanName)
                 .withRegion(testEnv.azureLocation)
                 .withNewResourceGroup(testEnv.azureResourceGroup)
-                .withPricingTier(testEnv.appServicePricingTier)
+                .withPricingTier(appServicePricingTier)
                 .withOperatingSystem(OperatingSystem.WINDOWS)
                 .create();
         Assert.assertNotNull(asp);
@@ -75,6 +79,10 @@ public class ITSwapSlotsCommand extends IntegrationTest {
                 .withWebContainer(WebContainer.TOMCAT_8_0_NEWEST)
                 .create();
         Assert.assertNotNull(webApp);
+        DeploymentSlot deploymentSlot = webApp.deploymentSlots().define("slot")
+                .withConfigurationFromParent()
+                .create();
+        Assert.assertNotNull(deploymentSlot);
         when(commandDataMock.getWebApp()).thenReturn(webApp);
 
 
@@ -99,14 +107,8 @@ public class ITSwapSlotsCommand extends IntegrationTest {
     }
 
 
-    /**
-     * This test uploads a zip file to deploy java app and verifies web page content
-     *
-     * @throws IOException
-     * @throws InterruptedException
-     */
     @Test
-    public void zipDeploy() throws IOException, InterruptedException {
+    public void testSwapSlots() throws IOException, InterruptedException {
         // setup webapp and slot for swapping
         Utils.extractResourceFile(getClass(), "sample-java-app-zip/gs-spring-boot-0.1.0.zip", workspace.child("gs-spring-boot-0.1.0.zip").getRemote());
         when(commandDataMock.getFilePath()).thenReturn("gs-spring-boot-0.1.0.zip");
