@@ -38,8 +38,6 @@ public final class AzureUtils {
         });
     }
 
-//    public static Webapp
-
     private AzureUtils() {
     }
 }

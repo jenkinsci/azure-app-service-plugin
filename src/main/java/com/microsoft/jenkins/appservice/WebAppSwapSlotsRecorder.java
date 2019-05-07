@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 public class WebAppSwapSlotsRecorder extends Recorder implements SimpleBuildStep {
-    private static final String PRODUCTION_SLOT_NAME = "production";
-
     private final String azureCredentialsId;
     private final String resourceGroup;
     private final String appName;
@@ -178,7 +176,7 @@ public class WebAppSwapSlotsRecorder extends Recorder implements SimpleBuildStep
                 WebApp webApp = azureClient.webApps().getByResourceGroup(resourceGroup, appName);
                 PagedList<DeploymentSlot> deploymentSlots = webApp.deploymentSlots().list();
                 ListBoxModel model = new ListBoxModel();
-                model.add(PRODUCTION_SLOT_NAME);
+                model.add(Constants.PRODUCTION_SLOT_NAME);
                 for (DeploymentSlot slot : deploymentSlots) {
                     model.add(slot.name());
                 }
