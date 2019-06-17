@@ -111,7 +111,7 @@ You can use `Swap slots for an Azure Web App` step in `Post-build Actions` to sw
 Here is the sample to swap slots in pipeline script:
 
 ```groovy
-azureWebAppSwapSlots appName: '<web_app_name>', azureCredentialsId: '<credential_id>', resourceGroup: '<resource_group>', sourceSlotName: '<source_slot_name>', targetSlotName: '<target_slot_name>'
+azureWebAppSwapSlots appName: '<web_app_name>', azureCredentialsId: '<credential_id>', resourceGroup: '<resource_group_name>', sourceSlotName: '<source_slot_name>', targetSlotName: '<target_slot_name>'
 ```
 
 ## Data/Telemetry
