@@ -1,8 +1,8 @@
 # Azure App Service Plugin Changelog
 
 ## Version 1.0.1, 2020-10-26
-# Bump commons-compress from 1.12 to 1.19 
-# Update maintainer
+* Bump commons-compress from 1.12 to 1.19 
+* Update maintainer
 
 ## Version 1.0.0, 2019-06-17
 * Bump Jenkins version to 2.60.3
