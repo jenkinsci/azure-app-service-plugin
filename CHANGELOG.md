@@ -1,7 +1,7 @@
 # Azure App Service Plugin Changelog
 
 ## Version 1.0.2, 2021-02-20
-# Document update
+* Document update
 
 ## Version 1.0.1, 2020-10-26
 * Bump commons-compress from 1.12 to 1.19 
