@@ -1,5 +1,7 @@
 # Azure App Service Plugin
 
+> ***Important***: This plugin is being retired and will be out of support as of February 29, 2024. Azure CLI is the currently recommended way to integrate Jenkins with Azure services. Refer to [Tutorial: Deploy to Azure App Service with Jenkins and the Azure CLI](https://docs.microsoft.com/en-us/azure/developer/jenkins/deploy-to-azure-app-service-using-azure-cli) for more details.
+
 A Jenkins plugin to deploy an Azure App Service (currently supports only Web App).
 
 ## How to Install
@@ -31,8 +33,8 @@ Then create a Web App in Azure portal or through Azure CLI, we support both [Web
 
 ### Deploy to Web App through File Upload
 
-You can deploy your project to Azure Web App by uploading your build artifacts (for example, `.war` or `.zip` file in Java). 
-- For Java EE apps, [WAR deploy](https://docs.microsoft.com/en-us/azure/app-service/app-service-deploy-zip#deploy-war-file) will be used. 
+You can deploy your project to Azure Web App by uploading your build artifacts (for example, `.war` or `.zip` file in Java).
+- For Java EE apps, [WAR deploy](https://docs.microsoft.com/en-us/azure/app-service/app-service-deploy-zip#deploy-war-file) will be used.
 - For Java SE app, [ZIP deploy](https://docs.microsoft.com/en-us/azure/app-service/app-service-deploy-zip#deploy-zip-file) will be used.
 - For other languages, Git will be used.
 
@@ -83,17 +85,17 @@ To deploy a Java web app using file upload:
 
 ```groovy
 azureWebAppPublish azureCredentialsId: '<credential_id>',
-                   resourceGroup: '<resource_group_name>', appName: '<app_name>',
-                   filePath: '*.war', sourceDirectory: 'target', targetDirectory: 'webapps'
+        resourceGroup: '<resource_group_name>', appName: '<app_name>',
+        filePath: '*.war', sourceDirectory: 'target', targetDirectory: 'webapps'
 ```
 
 To deploy using docker:
 
 ```groovy
 azureWebAppPublish azureCredentialsId: '<credential_id>', publishType: 'docker',
-                   resourceGroup: '<resource_group_name>', appName: '<app_name>',
-                   dockerImageName: '<image_name>', dockerImageTag: '<image_tag>',
-                   dockerRegistryEndpoint: [credentialsId: '<registry_credential_id>', url: "<registry_url>"]
+        resourceGroup: '<resource_group_name>', appName: '<app_name>',
+        dockerImageName: '<image_name>', dockerImageTag: '<image_tag>',
+        dockerRegistryEndpoint: [credentialsId: '<registry_credential_id>', url: "<registry_url>"]
 ```
 
 For advanced options, you can use Jenkins Pipeline Syntax tool to generate a sample script.
