@@ -31,6 +31,9 @@ public class WebAppUtilsTest {
 
         when(app.linuxFxVersion()).thenReturn("PHP|5.6");
         Assert.assertFalse(WebAppUtils.isJavaApp(app));
+
+        when(app.linuxFxVersion()).thenReturn("JAVA|11-java11");
+        Assert.assertTrue(WebAppUtils.isJavaApp(app));
     }
 
     @Test
