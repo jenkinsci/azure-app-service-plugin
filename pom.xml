@@ -32,7 +32,7 @@
 
     <name>Azure App Service Plugin</name>
     <description>A Jenkins plugin to deploys apps to Azure App Service</description>
-    <url>https://wiki.jenkins-ci.org/display/JENKINS/Azure+App+Service+Plugin</url>
+    <url>http://github.com/jenkinsci/azure-app-service-plugin</url>
 
     <licenses>
         <license>
