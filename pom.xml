@@ -15,7 +15,7 @@
     </parent>
 
     <artifactId>azure-app-service</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>hpi</packaging>
 
     <properties>
@@ -32,7 +32,7 @@
 
     <name>Azure App Service Plugin</name>
     <description>A Jenkins plugin to deploys apps to Azure App Service</description>
-    <url>https://wiki.jenkins-ci.org/display/JENKINS/Azure+App+Service+Plugin</url>
+    <url>http://github.com/jenkinsci/azure-app-service-plugin</url>
 
     <licenses>
         <license>
@@ -43,9 +43,9 @@
 
     <developers>
         <developer>
-            <id>azure_devops</id>
-            <name>Azure DevOps Team</name>
-            <email>vscjenkins@microsoft.com</email>
+            <id>xuzhang</id>
+            <name>Xu Zhang</name>
+            <email>xuzhang3@microsoft.com</email>
         </developer>
     </developers>
     <scm>
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.10.5</version>
+            <version>2.9.10.7</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -243,7 +243,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.12</version>
+                <version>1.19</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
