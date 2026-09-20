@@ -1,6 +1,6 @@
 # Azure App Service Plugin
 
-> ***Important***: This plugin is deprecated and out of support as of February 29, 2024. Azure CLI is the currently recommended way to integrate Jenkins with Azure services. Refer to [Tutorial: Deploy to Azure App Service with Jenkins and the Azure CLI](https://docs.microsoft.com/en-us/azure/developer/jenkins/deploy-to-azure-app-service-using-azure-cli) for more details.
+> ***Important***: This plugin is deprecated and unsupported. Use the Azure CLI to integrate Jenkins with Azure services.  Refer to [Tutorial: Deploy from GitHub to Azure Kubernetes Service using Jenkins](https://learn.microsoft.com/en-us/azure/developer/jenkins/deploy-from-github-to-aks) for more details.
 
 A Jenkins plugin to deploy an Azure App Service (currently supports only Web App).
 
