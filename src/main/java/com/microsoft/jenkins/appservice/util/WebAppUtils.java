@@ -23,12 +23,10 @@ public final class WebAppUtils {
         }
 
         String linuxFxVersion = app.linuxFxVersion();
-        if (StringUtils.isNotBlank(linuxFxVersion) && linuxFxVersion.toLowerCase().contains("jre")) {
-            // Linux container Java App
-            return true;
-        }
-
-        return false;
+        // Linux container Java App
+        return StringUtils.isNotBlank(linuxFxVersion)
+                && (linuxFxVersion.toLowerCase().contains("jre")
+                || linuxFxVersion.startsWith("JAVA|"));
     }
 
     public static boolean isBuiltInDockerImage(WebAppBase app) {
