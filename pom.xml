@@ -27,7 +27,7 @@
         <azuresdk.version>1.19.0</azuresdk.version>
         <azure-credentials.version>1.6.1</azure-credentials.version>
         <azure-commons.version>0.2.11</azure-commons.version>
-        <version.jenkins.docker-commons>1.4.0</version.jenkins.docker-commons>
+        <version.jenkins.docker-commons>1.18</version.jenkins.docker-commons>
     </properties>
 
     <name>Azure App Service Plugin</name>
